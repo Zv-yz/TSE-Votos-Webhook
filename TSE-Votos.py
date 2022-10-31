@@ -24,6 +24,12 @@ def GetCand(data):
 		new_str = new_str + f'> **{i["nm"]}:** {ConvertPercentage(i["pvap"])}% (**{ConvertVotos(i["vap"])}**)\n'
 	return new_str
 
+def TotalVotos(data):
+	n = 0
+	for i in data:
+		n += int(i["vap"])
+	return n
+
 def ConvertVotos(num):
 	num = f'{int(num):_.2f}'.replace('_',',')
 	return num[:len(num)-3]
@@ -33,7 +39,7 @@ while True:
 	if req.status_code == 200 and 'cand' in req.json():
 		data = req.json()["cand"]
 		purados = req.json()["pst"]
-		_req = httpx.patch(f'{WEBHOOK_LINK}/messages/{ID_MESSAGE}', json={'content': f'**[Resultados das eleições]**\n{GetCand(data)}\n> **Total de Votos:** {ConvertVotos(int(data[0]["vap"]) + int(data[1]["vap"]))}\n> **Urnas Apuradas:** {ConvertPercentage(purados, True)}%\n\nAtualizando <t:{math.floor(time.time())+REFRESH_TIME}:R>'})
+		_req = httpx.patch(f'{WEBHOOK_LINK}/messages/{ID_MESSAGE}', json={'content': f'**[Resultados das eleições]**\n{GetCand(data)}\n> **Total de Votos:** {TotalVotos(data)}\n> **Urnas Apuradas:** {ConvertPercentage(purados, True)}%\n\nAtualizando <t:{math.floor(time.time())+REFRESH_TIME}:R>'})
 		if _req.status_code == 200:
 			print('[V] Sucesso ao alterar mensagem do webhook.')
 		else:
